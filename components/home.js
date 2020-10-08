@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Text, FlatList, YellowBox, ToastAndroid, ActivityIndicator } from 'react-native'
+import { View, StyleSheet, Text, FlatList, YellowBox, ToastAndroid, ActivityIndicator, AsyncStorage, Alert } from 'react-native'
 import { ListItem, SearchBar } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/Feather';
 import database from '@react-native-firebase/database';
 import BookDetails from './bookDetails';
 import { createStackNavigator } from 'react-navigation-stack';
-import { createAppContainer } from 'react-navigation';
+import { createAppContainer, NavigationActions, StackActions } from 'react-navigation';
 class Home extends Component {
-    static navigationOptions = {
+    static navigationOptions = ({ navigation }) => ({
         title: "Home",
         headerTintColor: "white",
         headerStyle: {
@@ -15,8 +15,25 @@ class Home extends Component {
         },
         headerTitleStyle: {
             fontFamily: "Nexa-Bold"
-        }
-    };
+        },
+        headerRight: () => <Text onPress={() => {
+            Alert.alert('Log out', 'Are you sure you want to log out?',
+                [{ text: 'NO', style: 'cancel' },
+                {
+                    text: 'YES', onPress: async () => {
+                        await AsyncStorage.removeItem('token')
+                        await navigation.dispatch(StackActions.reset({
+                            index: 0,
+                            actions: [
+                                NavigationActions.navigate({ routeName: 'login' })
+                            ]
+                        }))
+                    }
+                }
+                ], { cancelable: false })
+
+        }} style={{ fontFamily: 'Nexa-Light', color: 'white', marginHorizontal: 10 }}>Log out</Text>
+    })
     constructor() {
         super()
         YellowBox.ignoreWarnings([
@@ -37,7 +54,7 @@ class Home extends Component {
             .then(snapshot => {
                 console.log(snapshot.val());
                 this.setState({
-                    
+
                     visible: true,
                     haveData: true
                 })
@@ -73,19 +90,19 @@ class Home extends Component {
     render() {
         if (!this.state.visible) {
             return (
-        
-                    <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-                        <ActivityIndicator size='large' color='#23bcc4' />
-                        <Text style={{ fontFamily: 'Nexa-Light', margin: 5, color: 'black' }}>Please wait...</Text>
-                    </View>
+
+                <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+                    <ActivityIndicator size='large' color='#23bcc4' />
+                    <Text style={{ fontFamily: 'Nexa-Light', margin: 5, color: 'black' }}>Please wait...</Text>
+                </View>
             )
         } else {
             if (!this.state.haveData) {
                 return (
-                
-                        <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
-                            <Text style={{ fontFamily: 'Nexa-Light', color: 'black' }}>There is nothing to show, just yet!</Text>
-                        </View>
+
+                    <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+                        <Text style={{ fontFamily: 'Nexa-Light', color: 'black' }}>There is nothing to show, just yet!</Text>
+                    </View>
 
 
                 )

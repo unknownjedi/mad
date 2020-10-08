@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Animated } from 'react-native';
+import { StyleSheet, View, Text, Animated, AsyncStorage, YellowBox } from 'react-native';
 import { createAppContainer, StackActions, NavigationActions } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import Home from './components/home';
+import Login from './components/login';
+import Register from './components/register';
+import auth from '@react-native-firebase/auth';
 class App extends Component {
   static navigationOptions = {
     headerShown: false
@@ -10,6 +13,9 @@ class App extends Component {
   constructor () {
     super()
     this.springValue = new Animated.Value(0.5)
+    YellowBox.ignoreWarnings([
+      'Warning'
+    ])
   }
   startAnimation = () => {
     this.springValue.setValue(0.3)
@@ -24,12 +30,25 @@ class App extends Component {
   componentDidMount = () => {
      this.startAnimation()
     setTimeout(() => {
-      this.props.navigation.dispatch(StackActions.reset({
-        index: 0,
-        actions: [
-          NavigationActions.navigate({ routeName: 'home' })
-        ]
-      }))
+      AsyncStorage.getItem('token').then(token => {
+        if (token == null && token == undefined) {
+          this.props.navigation.dispatch(StackActions.reset({
+            index: 0,
+            actions: [
+              NavigationActions.navigate({ routeName: 'login' })
+            ]
+          }))
+         
+        } else if (token.length > 1 && token === auth().currentUser.uid) {
+          this.props.navigation.dispatch(StackActions.reset({
+            index: 0,
+            actions: [
+              NavigationActions.navigate({ routeName: 'home' })
+            ]
+          }))
+        }
+      })
+     
     }, 1500)
   }
   render() {
@@ -46,8 +65,11 @@ const AppNavigator = createStackNavigator({
     screen: Home,
     navigationOptions: {
       headerShown: false
-   } 
-  }
+   },
+   
+  },
+  register: Register,
+  login: Login
 })
 export default createAppContainer(AppNavigator)
 const styles = StyleSheet.create({
