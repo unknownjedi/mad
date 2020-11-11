@@ -79,7 +79,7 @@ export default class Login extends Component {
                     }
                 }).catch(error => {
                     console.log(error)
-                    alert('Invalid Email Address or Password')
+                    alert('Invalid roll number or password!')
                     this.setState({
                         loading: false
                     })
