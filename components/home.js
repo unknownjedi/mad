@@ -85,7 +85,8 @@ const HomeTab = createStackNavigator({
 });
 const AccountTab = createStackNavigator({
     Account: Account,
-    wishlist: Wishlist
+    wishlist: Wishlist,
+    wishlistDetails: BookDetails
 })
 const Tabs = createBottomTabNavigator({
     Home: HomeTab,

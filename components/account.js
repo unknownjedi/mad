@@ -68,6 +68,7 @@ export default class Account extends Component {
                         rightElement={<Text style={{fontFamily: 'Nexa-Light'}}>Rs. {this.state.fine}</Text>}
                                 leftIcon={<Icon name={'money'} color={'#23bcc4'} size={20} />}
                                 onPress={() => {
+                                    
                                     Axios.post('https://api.razorpay.com/v1/orders', 
                                     {
                                         amount: this.state.fine * 100,
@@ -79,6 +80,7 @@ export default class Account extends Component {
                                           }
                                         
                                     }).then(response => {
+
                                         console.log(response)
                                    
                                         let options = {
@@ -105,11 +107,13 @@ export default class Account extends Component {
                                                 { text: 'OK', style: 'default' }
                                             ]);
                                         }).catch((error) => {
+                                            
                                             Alert.alert('', 'Payment cancelled!', [
                                                 { text: 'OK', style: 'default' }
                                             ]);
                                         });
                                     }).catch(e => {
+                                        alert(e.message)
                                         console.log(e)
                                     })
                                 }}

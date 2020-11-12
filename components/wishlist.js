@@ -88,7 +88,7 @@ export default class Wishlist extends Component {
                                             marginHorizontal: 10,
                                             margin: 5,
                                         }}
-                                        onPress={() => this.props.navigation.navigate('bookDetails', { data: item })}
+                                        onPress={() => this.props.navigation.navigate('wishlistDetails', { data: item })}
                                     />
                                 )
                             }}

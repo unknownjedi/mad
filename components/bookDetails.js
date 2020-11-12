@@ -19,7 +19,8 @@ export default class BookDetails extends Component {
     };
 
     state = {
-        wishlist: []
+        wishlist: [],
+        subscriptions: []
     }
 
     componentDidMount = () => {
@@ -33,16 +34,57 @@ export default class BookDetails extends Component {
                         wishlist: snapshot.val()
                     })
                 }
-             
+
             })
+        database()
+            .ref('/users' + auth().currentUser.uid + '/subscriptions')
+            .once('value')
+            .then(snapshot => {
+                console.log(snapshot.val());
+                if (snapshot.val()) {
+                    this.setState({
+                        subscriptions: snapshot.val()
+                    })
+                }
+
+            })
+
     }
     onSubscribeToBook = () => {
         let data = this.props.navigation.getParam('data')
-        messaging()
-            .subscribeToTopic(data.id.toString())
-            .then(() => {
-                Alert.alert('Subscribed', 'You have been subscribed to the book "' + data.name + '". As the count of the book decreases, ' + "you'll be notified.")
-            });
+
+        let subscriptions = Object.assign([], this.state.wishlist)
+        if (this.state.subscriptions.filter(filtered_data => filtered_data.id == data.id).length == 0) {
+            messaging()
+                .subscribeToTopic(data.id.toString())
+                .then(() => {
+                    subscriptions.push({ id: data.id })
+                    this.setState({
+                        subscriptions: subscriptions
+                    })
+                    database().ref('users/' + auth().currentUser.uid + '/subscriptions').set(subscriptions)
+                        .then(() => {
+                            Alert.alert('Subscribed', 'You have been subscribed to the book "' + data.name + '". As the count of the book decreases, ' + "you'll be notified.")
+                        })
+
+                })
+        } else {
+            messaging()
+                .unsubscribeFromTopic(data.id.toString())
+                .then(() => {
+                    let removing_index = this.state.subscriptions.findIndex(filtered_data => filtered_data.id == data.id)
+                    subscriptions.splice(removing_index, 1)
+                    this.setState({
+                        subscriptions: subscriptions
+                    })
+                    database().ref('users/' + auth().currentUser.uid + '/subscriptions').set(subscriptions)
+                        .then(() => {
+                            Alert.alert('Unsubscribed', 'You have been unsubscribed to the book "' + data.name + '". As the count of the book decreases, ' + "you'll not be notified.")
+                        })
+
+                })
+        }
+
     }
 
     render() {
@@ -60,16 +102,25 @@ export default class BookDetails extends Component {
                                 <TouchableNativeFeedback onPress={() => {
                                     console.log(this.state.wishlist)
                                     let wishlist = Object.assign([], this.state.wishlist)
-                                    if(this.state.wishlist.filter(filtered_data => filtered_data.id == data.id).length == 0){
+                                    if (this.state.wishlist.filter(filtered_data => filtered_data.id == data.id).length == 0) {
+                                        
                                         wishlist.push(data)
                                         this.setState({
                                             wishlist: wishlist
                                         })
-                                        database().ref('users/' + auth().currentUser.uid+'/wishlist').set(wishlist)
+                                        database().ref('users/' + auth().currentUser.uid + '/wishlist').set(wishlist)
+                                            .then(() => console.log('Data updated.'));
+                                    } else {
+                                        let removing_index = this.state.wishlist.findIndex(filtered_data => filtered_data.id == data.id)
+                                        wishlist.splice(removing_index, 1)
+                                        this.setState({
+                                            wishlist: wishlist
+                                        })
+                                        database().ref('users/' + auth().currentUser.uid + '/wishlist').set(wishlist)
                                         .then(() => console.log('Data updated.'));
                                     }
-                                   
-                                  
+
+
                                 }}>
                                     <Icon name='heart' size={24} type='font-awesome' reverse reverseColor={this.state.wishlist.filter(filtered_data => filtered_data.id == data.id).length > 0 ? 'red' : 'gray'} raised color='white' />
                                 </TouchableNativeFeedback>
@@ -111,7 +162,7 @@ export default class BookDetails extends Component {
                             containerStyle={{ width: '75%', alignSelf: 'center' }}
                             buttonStyle={{ backgroundColor: '#23bcc4', borderRadius: 15 }}
                             titleStyle={{ fontFamily: 'Nexa-Light', color: 'white' }}
-                            title={'To be picked'}
+                            title={this.state.subscriptions.filter(filtered_data => filtered_data.id == data.id).length > 0 ? 'Unsubscribe' : 'To be picked'}
                             onPress={() => this.onSubscribeToBook()}
                         />
                     </View>
