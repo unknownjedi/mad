@@ -47,13 +47,13 @@ export default class Account extends Component {
 
                             </View>
                             <Divider style={{ margin: 5 }} />
-                            {/* <ListItem
-                                title={'Issued Books'}
+                            <ListItem
+                                title={'Issued books'}
                                 titleStyle={{ fontFamily: 'Nexa-Light' }}
                                 chevron
                                 leftIcon={<Icon name={'book'} color={'#23bcc4'} size={20} />}
-                                onPress={() => this.props.navigation.navigate('')}
-                            /> */}
+                                onPress={() => this.props.navigation.navigate('issuedBooks')}
+                            />
                              <ListItem
                                 title={'Wishlist'}
                                 titleStyle={{ fontFamily: 'Nexa-Light' }}

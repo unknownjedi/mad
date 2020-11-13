@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/FontAwesome5'
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import Account from './account';
 import Wishlist from './wishlist';
+import IssuedBooks from './issuedBooks';
 class Home extends Component {
     static navigationOptions = ({ navigation }) => ({
         title: "Home",
@@ -86,7 +87,8 @@ const HomeTab = createStackNavigator({
 const AccountTab = createStackNavigator({
     Account: Account,
     wishlist: Wishlist,
-    wishlistDetails: BookDetails
+    wishlistDetails: BookDetails,
+    issuedBooks: IssuedBooks
 })
 const Tabs = createBottomTabNavigator({
     Home: HomeTab,
